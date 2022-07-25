@@ -236,8 +236,14 @@ public class BleActivity extends AppCompatActivity {
                         return;
                     }
                 }
+
+                Log.e(TAG,"scanRecord:"+scanRecord);
+
                 device.setScanRecord(ScanRecord.parseFromBytes(scanRecord));
                 device.setRssi(rssi);
+
+                Log.e(TAG, "DeviceInfo: "+device);
+
                 bleRssiDevices.add(device);
                 adapter.notifyDataSetChanged();
             }

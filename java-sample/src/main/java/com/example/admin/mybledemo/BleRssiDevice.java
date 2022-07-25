@@ -41,4 +41,13 @@ public class BleRssiDevice extends BleDevice {
     public void setRssiUpdateTime(long rssiUpdateTime) {
         this.rssiUpdateTime = rssiUpdateTime;
     }
+
+    @Override
+    public String toString() {
+        return "BleRssiDevice{" +
+                "scanRecord=" + scanRecord +
+                ", rssi=" + rssi +
+                ", rssiUpdateTime=" + rssiUpdateTime +
+                '}';
+    }
 }

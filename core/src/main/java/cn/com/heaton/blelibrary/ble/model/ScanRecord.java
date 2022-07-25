@@ -8,6 +8,7 @@ import android.os.ParcelUuid;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
@@ -42,7 +43,7 @@ public class ScanRecord {
         StringBuilder buffer = new StringBuilder();
         buffer.append('{');
         for (int i = 0; i < array.size(); ++i) {
-            buffer.append(array.keyAt(i)).append("=").append(Arrays.toString(array.valueAt(i)));
+            buffer.append(array.keyAt(i)).append("=").append(bytesToHex(array.valueAt(i)));
         }
         buffer.append('}');
         return buffer.toString();
@@ -235,8 +236,10 @@ public class ScanRecord {
                 }
                 // Note the length includes the length of the field type itself.
                 int dataLength = length - 1;
+
                 // fieldType is unsigned int.
                 int fieldType = scanRecord[currentPos++] & 0xFF;
+
                 switch (fieldType) {
                     case DATA_TYPE_FLAGS:
                         advertiseFlag = scanRecord[currentPos] & 0xFF;
@@ -267,6 +270,9 @@ public class ScanRecord {
                     case DATA_TYPE_SERVICE_DATA:
                         // The first two bytes of the service data are service data UUID in little
                         // endian. The rest bytes are service data.
+
+                        Log.e(TAG,localName +" currentPos:"+currentPos );
+
                         int serviceUuidLength = 16;
                         byte[] serviceDataUuidBytes = extractBytes(scanRecord, currentPos,
                                 serviceUuidLength);
@@ -281,9 +287,15 @@ public class ScanRecord {
                         // manufacturer ids in little endian.
                         int manufacturerId = ((scanRecord[currentPos + 1] & 0xFF) << 8) +
                                 (scanRecord[currentPos] & 0xFF);
+
+
+
                         byte[] manufacturerDataBytes = extractBytes(scanRecord, currentPos + 2,
                                 dataLength - 2);
                         manufacturerData.put(manufacturerId, manufacturerDataBytes);
+
+                        Log.e(TAG,localName +" currentPos:"+currentPos + " manufacturerId:"+manufacturerId+" manufacturerDataBytes:"+bytesToHex(manufacturerDataBytes));
+
                         break;
                     default:
                         // Just ignore, we don't handle such data type.
@@ -334,6 +346,9 @@ public class ScanRecord {
         while (dataLength > 0) {
             byte[] uuidBytes = extractBytes(scanRecord, currentPos,
                     uuidLength);
+
+            Log.e(TAG,"UUIDS:"+bytesToHex(uuidBytes));
+
             serviceUuids.add(parseUuidFrom(uuidBytes));
             dataLength -= uuidLength;
             currentPos += uuidLength;
